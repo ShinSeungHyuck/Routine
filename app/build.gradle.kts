@@ -1,18 +1,17 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")  // version 지정은 루트에서 하므로 여기서는 생략
     id("com.google.devtools.ksp")
 }
 
 android {
     namespace = "com.example.routine"
-    compileSdk = 36
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.routine"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -29,45 +28,53 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-
     buildFeatures {
         compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.7"
+    }
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(11)) // 설치된 버전으로 조정
+        }
+    }
+
+    kotlin {
+        jvmToolchain(11)
+    }
+
+    //kotlinOptions {
+    //    jvmTarget = "1.8"
+    //}
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
 dependencies {
-    implementation("androidx.navigation:navigation-compose:2.7.3")
-    implementation("androidx.core:core-ktx:1.16.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.2")
-    implementation("androidx.activity:activity-compose:1.10.1")
-    implementation(platform("androidx.compose:compose-bom:2024.09.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-
-    // WorkManager
-    implementation("androidx.work:work-runtime-ktx:2.10.2")
-
-    // Room
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
-
-    // Test dependencies
+    //implementation("androidx.compose.compiler:compiler:1.4.7")
+    //implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.09.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    ksp("androidx.room:room-compiler:2.5.1")
+    implementation("androidx.compose.ui:ui:1.4.3")
+    implementation("androidx.room:room-ktx:2.5.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.room:room-runtime:2.5.1")
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    implementation("androidx.activity:activity-compose:1.8.2")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.4.3")
+    implementation("androidx.compose.material3:material3:1.1.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
+    implementation("androidx.navigation:navigation-compose:2.5.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.4.3")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.4.3")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }
