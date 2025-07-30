@@ -183,42 +183,11 @@ fun RoutineListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CalendarScreen(
-    routineDao: RoutineDao,
-    onNavigateBack: () -> Unit
-) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Calendar") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-            Text("Calendar Screen")
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
 fun RoutineScreenPreview() {
     RoutineTheme {
         // RoutineListScreen(routineDao = FakeRoutineDao(), onNavigateToCalendar = {})
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CalendarScreenPreview() {
-    RoutineTheme {
-        // CalendarScreen(routineDao = FakeRoutineDao(), onNavigateBack = {})
     }
 }
