@@ -59,6 +59,9 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1") // for Kotlin Coroutines
     ksp("androidx.room:room-compiler:2.6.1") // for Room annotations processing
 
+    // Jetpack Compose Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
