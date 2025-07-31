@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import android.util.Log // Import Log
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,6 +116,7 @@ fun RoutineListScreen(
             Button(
                 onClick = {
                     if (routineText.isNotBlank() && timeText.isNotBlank()) {
+                        Log.d("RoutineDebug", "Input Routine: $routineText, Time: $timeText") // Added Log
                         val timeParts = timeText.split(":")
                         if (timeParts.size == 2) {
                             try {
@@ -135,6 +137,7 @@ fun RoutineListScreen(
                                 coroutineScope.launch {
                                     val newRoutine = Routine(name = routineText, time = timeText)
                                     val routineId = routineDao.insertRoutine(newRoutine).toInt()
+                                    Log.d("RoutineDebug", "Routine saved to DB with ID: $routineId, Name: ${newRoutine.name}, Time: ${newRoutine.time}") // Added Log
 
                                     val inputData = Data.Builder()
                                         .putString("routineName", routineText)
@@ -153,10 +156,10 @@ fun RoutineListScreen(
                                 routineText = ""
                                 timeText = ""
                             } catch (e: NumberFormatException) {
-                                // Invalid format handling
+                                Log.e("RoutineDebug", "Invalid time format: $timeText", e) // Added Log for error
                             }
                         } else {
-                            // Invalid format handling
+                            Log.e("RoutineDebug", "Invalid time format: $timeText") // Added Log for error
                         }
                     }
                 },
