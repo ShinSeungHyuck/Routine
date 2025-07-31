@@ -22,4 +22,7 @@ interface RoutineDao {
 
     @Query("SELECT COUNT(*) FROM routine_completions WHERE routineId = :routineId AND completionDate BETWEEN :startOfDayMillis AND :endOfDayMillis")
     suspend fun isRoutineCompletedOnDate(routineId: Int, startOfDayMillis: Long, endOfDayMillis: Long): Int
+
+    @Query("DELETE FROM routines")
+    suspend fun deleteAllRoutines()
 }
