@@ -10,8 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.*;
+import androidx.compose.runtime.*;
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +31,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import android.util.Log // Import Log
-import androidx.compose.material.icons.filled.Delete // Import Delete Icon
+// import androidx.compose.material.icons.filled.Delete // Import Delete Icon
+import androidx.compose.material.icons.filled.DateRange // Re-import DateRange for clarity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,18 +87,18 @@ fun RoutineListScreen(
             TopAppBar(
                 title = { Text("Routine") },
                 actions = {
-                    // 캘린더 버튼
-                    IconButton(onClick = onNavigateToCalendar) {
-                        Icon(Icons.Default.DateRange, contentDescription = "Calendar")
-                    }
-                    // 초기화 버튼 추가
+                    // 초기화 버튼 (달력 아이콘 사용, 달력 버튼 왼쪽에 위치)
                     IconButton(onClick = {
                         coroutineScope.launch {
                             routineDao.deleteAllRoutines()
                             Log.d("RoutineDebug", "All routines deleted.") // 삭제 확인 로그
                         }
                     }) {
-                        Icon(Icons.Default.Delete, contentDescription = "모든 루틴 초기화") // 적절한 아이콘 사용 (예: Delete)
+                        Icon(Icons.Default.DateRange, contentDescription = "모든 루틴 초기화") // 달력 아이콘 사용
+                    }
+                    // 캘린더 버튼
+                    IconButton(onClick = onNavigateToCalendar) {
+                        Icon(Icons.Default.DateRange, contentDescription = "Calendar")
                     }
                 }
             )
