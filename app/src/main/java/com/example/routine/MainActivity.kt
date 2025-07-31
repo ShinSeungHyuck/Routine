@@ -125,63 +125,81 @@ fun RoutineListScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = {
-                    if (routineText.isNotBlank() && timeText.isNotBlank()) {
-                        Log.d("RoutineDebug", "Input Routine: $routineText, Time: $timeText")
-                        val currentRoutineText = routineText // 값을 별도의 변수에 저장
-                        val currentTimeText = timeText     // 값을 별도의 변수에 저장
-
-                        val timeParts = currentTimeText.split(":")
-                        if (timeParts.size == 2) {
-                            try {
-                                val hour = timeParts[0].toInt()
-                                val minute = timeParts[1].toInt()
-
-                                val calendar = Calendar.getInstance()
-                                val nowHour = calendar.get(Calendar.HOUR_OF_DAY)
-                                val nowMinute = calendar.get(Calendar.MINUTE)
-
-                                var delayInMinutes = (hour * 60 + minute) - (nowHour * 60 + nowMinute)
-                                if (delayInMinutes < 0) {
-                                    delayInMinutes += 24 * 60
-                                }
-
-                                val delayInMillis = delayInMinutes * 60 * 1000L
-
-                                coroutineScope.launch {
-                                    val newRoutine = Routine(name = currentRoutineText, time = currentTimeText)
-                                    val routineId = routineDao.insertRoutine(newRoutine).toInt()
-                                    Log.d("RoutineDebug", "Routine saved to DB with ID: $routineId, Name: ${newRoutine.name}, Time: ${newRoutine.time}")
-
-                                    val inputData = Data.Builder()
-                                        .putString("routineName", currentRoutineText)
-                                        .putInt("routineId", routineId)
-                                        .build()
-
-                                    val notificationWorkRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-                                        .setInputData(inputData)
-                                        .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS)
-                                        .addTag(routineId.toString())
-                                        .build()
-
-                                    WorkManager.getInstance(context).enqueue(notificationWorkRequest)
-                                }
-
-                                routineText = ""
-                                timeText = ""
-                            } catch (e: NumberFormatException) {
-                                Log.e("RoutineDebug", "Invalid time format: $timeText", e)
-                            }
-                        } else {
-                            Log.e("RoutineDebug", "Invalid time format: $timeText")
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
+            Row( // Use Row to place buttons side-by-side
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween // Distribute space evenly
             ) {
-                Text("루틴 추가")
+                Button(
+                    onClick = {
+                        if (routineText.isNotBlank() && timeText.isNotBlank()) {
+                            Log.d("RoutineDebug", "Input Routine: $routineText, Time: $timeText")
+                            val currentRoutineText = routineText // 값을 별도의 변수에 저장
+                            val currentTimeText = timeText     // 값을 별도의 변수에 저장
+
+                            val timeParts = currentTimeText.split(":")
+                            if (timeParts.size == 2) {
+                                try {
+                                    val hour = timeParts[0].toInt()
+                                    val minute = timeParts[1].toInt()
+
+                                    val calendar = Calendar.getInstance()
+                                    val nowHour = calendar.get(Calendar.HOUR_OF_DAY)
+                                    val nowMinute = calendar.get(Calendar.MINUTE)
+
+                                    var delayInMinutes = (hour * 60 + minute) - (nowHour * 60 + nowMinute)
+                                    if (delayInMinutes < 0) {
+                                        delayInMinutes += 24 * 60
+                                    }
+
+                                    val delayInMillis = delayInMinutes * 60 * 1000L
+
+                                    coroutineScope.launch {
+                                        val newRoutine = Routine(name = currentRoutineText, time = currentTimeText)
+                                        val routineId = routineDao.insertRoutine(newRoutine).toInt()
+                                        Log.d("RoutineDebug", "Routine saved to DB with ID: $routineId, Name: ${newRoutine.name}, Time: ${newRoutine.time}")
+
+                                        val inputData = Data.Builder()
+                                            .putString("routineName", currentRoutineText)
+                                            .putInt("routineId", routineId)
+                                            .build()
+
+                                        val notificationWorkRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+                                            .setInputData(inputData)
+                                            .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS)
+                                            .addTag(routineId.toString())
+                                            .build()
+
+                                        WorkManager.getInstance(context).enqueue(notificationWorkRequest)
+                                    }
+
+                                    routineText = ""
+                                    timeText = ""
+                                } catch (e: NumberFormatException) {
+                                    Log.e("RoutineDebug", "Invalid time format: $timeText", e)
+                                }
+                            } else {
+                                Log.e("RoutineDebug", "Invalid time format: $timeText")
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f) // occupy half the width
+                ) {
+                    Text("루틴 추가")
+                }
+                Spacer(modifier = Modifier.width(8.dp)) // Add a spacer for separation
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            routineDao.deleteAllRoutines()
+                            Log.d("RoutineDebug", "All routines deleted from delete button.") // 삭제 확인 로그
+                        }
+                    },
+                    modifier = Modifier.weight(1f) // occupy half the width
+                ) {
+                    Text("루틴 삭제")
+                }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // 여기 있던 초기화 버튼 코드는 삭제하고 topBar로 옮겼습니다.
@@ -189,7 +207,8 @@ fun RoutineListScreen(
             // Spacer(...)
 
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(routines) { routine ->
+                items(routines) {
+                    routine ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
