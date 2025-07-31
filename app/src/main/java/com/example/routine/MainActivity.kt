@@ -135,7 +135,7 @@ fun RoutineListScreen(
                                 val delayInMillis = delayInMinutes * 60 * 1000L
 
                                 coroutineScope.launch {
-                                    val newRoutine = Routine(name = routineText, time = timeText)
+                                    val newRoutine = Routine(name = routineText, time = timeText) // Ensure routineText and timeText are captured
                                     val routineId = routineDao.insertRoutine(newRoutine).toInt()
                                     Log.d("RoutineDebug", "Routine saved to DB with ID: $routineId, Name: ${newRoutine.name}, Time: ${newRoutine.time}") // Added Log
 
