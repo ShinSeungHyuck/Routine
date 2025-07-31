@@ -10,8 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.*;
+import androidx.compose.runtime.*;
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,6 +31,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import android.util.Log // Import Log
+// import androidx.compose.material.icons.filled.Delete // Import Delete Icon
+import androidx.compose.material.icons.filled.DateRange // Re-import DateRange for clarity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,6 +87,16 @@ fun RoutineListScreen(
             TopAppBar(
                 title = { Text("Routine") },
                 actions = {
+                    // 초기화 버튼 (달력 아이콘 사용, 달력 버튼 왼쪽에 위치)
+                    IconButton(onClick = {
+                        coroutineScope.launch {
+                            routineDao.deleteAllRoutines()
+                            Log.d("RoutineDebug", "All routines deleted.") // 삭제 확인 로그
+                        }
+                    }) {
+                        Icon(Icons.Default.DateRange, contentDescription = "모든 루틴 초기화") // 달력 아이콘 사용
+                    }
+                    // 캘린더 버튼
                     IconButton(onClick = onNavigateToCalendar) {
                         Icon(Icons.Default.DateRange, contentDescription = "Calendar")
                     }
@@ -116,8 +128,11 @@ fun RoutineListScreen(
             Button(
                 onClick = {
                     if (routineText.isNotBlank() && timeText.isNotBlank()) {
-                        Log.d("RoutineDebug", "Input Routine: $routineText, Time: $timeText") // Added Log
-                        val timeParts = timeText.split(":")
+                        Log.d("RoutineDebug", "Input Routine: $routineText, Time: $timeText")
+                        val currentRoutineText = routineText // 값을 별도의 변수에 저장
+                        val currentTimeText = timeText     // 값을 별도의 변수에 저장
+
+                        val timeParts = currentTimeText.split(":")
                         if (timeParts.size == 2) {
                             try {
                                 val hour = timeParts[0].toInt()
@@ -135,12 +150,12 @@ fun RoutineListScreen(
                                 val delayInMillis = delayInMinutes * 60 * 1000L
 
                                 coroutineScope.launch {
-                                    val newRoutine = Routine(name = routineText, time = timeText)
+                                    val newRoutine = Routine(name = currentRoutineText, time = currentTimeText)
                                     val routineId = routineDao.insertRoutine(newRoutine).toInt()
-                                    Log.d("RoutineDebug", "Routine saved to DB with ID: $routineId, Name: ${newRoutine.name}, Time: ${newRoutine.time}") // Added Log
+                                    Log.d("RoutineDebug", "Routine saved to DB with ID: $routineId, Name: ${newRoutine.name}, Time: ${newRoutine.time}")
 
                                     val inputData = Data.Builder()
-                                        .putString("routineName", routineText)
+                                        .putString("routineName", currentRoutineText)
                                         .putInt("routineId", routineId)
                                         .build()
 
@@ -156,10 +171,10 @@ fun RoutineListScreen(
                                 routineText = ""
                                 timeText = ""
                             } catch (e: NumberFormatException) {
-                                Log.e("RoutineDebug", "Invalid time format: $timeText", e) // Added Log for error
+                                Log.e("RoutineDebug", "Invalid time format: $timeText", e)
                             }
                         } else {
-                            Log.e("RoutineDebug", "Invalid time format: $timeText") // Added Log for error
+                            Log.e("RoutineDebug", "Invalid time format: $timeText")
                         }
                     }
                 },
@@ -168,6 +183,11 @@ fun RoutineListScreen(
                 Text("루틴 추가")
             }
             Spacer(modifier = Modifier.height(16.dp))
+
+            // 여기 있던 초기화 버튼 코드는 삭제하고 topBar로 옮겼습니다.
+            // Button(...)
+            // Spacer(...)
+
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(routines) { routine ->
                     Card(
