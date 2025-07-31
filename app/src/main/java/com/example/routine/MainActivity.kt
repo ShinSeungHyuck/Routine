@@ -116,8 +116,11 @@ fun RoutineListScreen(
             Button(
                 onClick = {
                     if (routineText.isNotBlank() && timeText.isNotBlank()) {
-                        Log.d("RoutineDebug", "Input Routine: $routineText, Time: $timeText") // Added Log
-                        val timeParts = timeText.split(":")
+                        Log.d("RoutineDebug", "Input Routine: $routineText, Time: $timeText")
+                        val currentRoutineText = routineText // 값을 별도의 변수에 저장
+                        val currentTimeText = timeText     // 값을 별도의 변수에 저장
+
+                        val timeParts = currentTimeText.split(":")
                         if (timeParts.size == 2) {
                             try {
                                 val hour = timeParts[0].toInt()
@@ -135,12 +138,12 @@ fun RoutineListScreen(
                                 val delayInMillis = delayInMinutes * 60 * 1000L
 
                                 coroutineScope.launch {
-                                    val newRoutine = Routine(name = routineText, time = timeText) // Ensure routineText and timeText are captured
+                                    val newRoutine = Routine(name = currentRoutineText, time = currentTimeText) // 저장된 변수 사용
                                     val routineId = routineDao.insertRoutine(newRoutine).toInt()
                                     Log.d("RoutineDebug", "Routine saved to DB with ID: $routineId, Name: ${newRoutine.name}, Time: ${newRoutine.time}") // Added Log
 
                                     val inputData = Data.Builder()
-                                        .putString("routineName", routineText)
+                                        .putString("routineName", currentRoutineText) // 저장된 변수 사용
                                         .putInt("routineId", routineId)
                                         .build()
 
@@ -156,10 +159,10 @@ fun RoutineListScreen(
                                 routineText = ""
                                 timeText = ""
                             } catch (e: NumberFormatException) {
-                                Log.e("RoutineDebug", "Invalid time format: $timeText", e) // Added Log for error
+                                Log.e("RoutineDebug", "Invalid time format: $timeText", e)
                             }
                         } else {
-                            Log.e("RoutineDebug", "Invalid time format: $timeText") // Added Log for error
+                            Log.e("RoutineDebug", "Invalid time format: $timeText")
                         }
                     }
                 },
