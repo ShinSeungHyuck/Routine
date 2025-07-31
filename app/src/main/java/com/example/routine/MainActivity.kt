@@ -31,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import android.util.Log // Import Log
+import androidx.compose.material.icons.filled.Delete // Import Delete Icon
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,8 +86,18 @@ fun RoutineListScreen(
             TopAppBar(
                 title = { Text("Routine") },
                 actions = {
+                    // 캘린더 버튼
                     IconButton(onClick = onNavigateToCalendar) {
                         Icon(Icons.Default.DateRange, contentDescription = "Calendar")
+                    }
+                    // 초기화 버튼 추가
+                    IconButton(onClick = {
+                        coroutineScope.launch {
+                            routineDao.deleteAllRoutines()
+                            Log.d("RoutineDebug", "All routines deleted.") // 삭제 확인 로그
+                        }
+                    }) {
+                        Icon(Icons.Default.Delete, contentDescription = "모든 루틴 초기화") // 적절한 아이콘 사용 (예: Delete)
                     }
                 }
             )
@@ -138,12 +149,12 @@ fun RoutineListScreen(
                                 val delayInMillis = delayInMinutes * 60 * 1000L
 
                                 coroutineScope.launch {
-                                    val newRoutine = Routine(name = currentRoutineText, time = currentTimeText) // 저장된 변수 사용
+                                    val newRoutine = Routine(name = currentRoutineText, time = currentTimeText)
                                     val routineId = routineDao.insertRoutine(newRoutine).toInt()
-                                    Log.d("RoutineDebug", "Routine saved to DB with ID: $routineId, Name: ${newRoutine.name}, Time: ${newRoutine.time}") // Added Log
+                                    Log.d("RoutineDebug", "Routine saved to DB with ID: $routineId, Name: ${newRoutine.name}, Time: ${newRoutine.time}")
 
                                     val inputData = Data.Builder()
-                                        .putString("routineName", currentRoutineText) // 저장된 변수 사용
+                                        .putString("routineName", currentRoutineText)
                                         .putInt("routineId", routineId)
                                         .build()
 
@@ -171,6 +182,11 @@ fun RoutineListScreen(
                 Text("루틴 추가")
             }
             Spacer(modifier = Modifier.height(16.dp))
+
+            // 여기 있던 초기화 버튼 코드는 삭제하고 topBar로 옮겼습니다.
+            // Button(...)
+            // Spacer(...)
+
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(routines) { routine ->
                     Card(
