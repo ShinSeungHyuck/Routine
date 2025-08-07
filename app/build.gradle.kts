@@ -53,6 +53,9 @@ dependencies {
     implementation("androidx.compose.material:material:1.5.3")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
 
+    // Compose Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.10")
 
