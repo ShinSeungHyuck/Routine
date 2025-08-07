@@ -4,12 +4,19 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
+import com.example.routine.ui.AddRoutineScreen
+import com.example.routine.ui.RoutineListScreen
 import androidx.lifecycle.lifecycleScope
 import com.example.routine.data.RoutineDatabase
 import com.example.routine.ui.RoutineViewModel
@@ -17,7 +24,7 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
-
+class MainActivity : ComponentActivity() {
     private lateinit var routineViewModel: RoutineViewModel
 
     private val requestPermissionLauncher =
@@ -31,7 +38,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContent {
+ val navController = rememberNavController()
+            val database = RoutineDatabase.getDatabase(applicationContext)
+            val routineDao = database.routineDao()
+            val routineViewModel: RoutineViewModel = viewModel(factory = RoutineViewModel.RoutineViewModelFactory(routineDao))
+
+            NavHost(navController = navController, startDestination = "routineList") {
+                composable("routineList") {
+                    RoutineListScreen(navController = navController, routineViewModel = routineViewModel)
+                }
+                composable("addRoutine") {
+                    AddRoutineScreen(navController = navController, routineViewModel = routineViewModel)
+                }
+            }
+        }
 
         val database = RoutineDatabase.getDatabase(applicationContext)
         val routineDao = database.routineDao()
