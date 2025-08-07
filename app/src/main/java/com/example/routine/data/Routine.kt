@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "routines")
 data class Routine(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val name: String,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val content: String,
     val hour: Int,
     val minute: Int

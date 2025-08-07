@@ -2,17 +2,10 @@ package com.example.routine.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -21,8 +14,22 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun RoutineListScreen(viewModel: RoutineViewModel) {
+    // 오늘 날짜 자정 시간 계산
+    val calendar = remember {
+        Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+    }
+    val startOfDayMillis = calendar.timeInMillis
+    val endOfDayMillis = startOfDayMillis + 24 * 60 * 60 * 1000 - 1 // 23:59:59.999
+
     val routines by viewModel.allRoutines.collectAsState(initial = emptyList())
- val completedRoutinesToday by viewModel.getRoutineCompletionsForDate(Calendar.getInstance().timeInMillis).collectAsState(initial = emptyList())
+    val completedRoutinesToday by viewModel.getRoutineCompletionsForDate(startOfDayMillis, endOfDayMillis)
+        .collectAsState(initial = emptyList())
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Routine List") })
@@ -35,7 +42,7 @@ fun RoutineListScreen(viewModel: RoutineViewModel) {
         ) {
             items(routines, key = { it.id }) { routine ->
                 val isCompletedToday = remember(completedRoutinesToday) {
- completedRoutinesToday.any { it.routineId == routine.id }
+                    completedRoutinesToday.any { it.routineId == routine.id }
                 }
                 RoutineItem(routine = routine, isCompleted = isCompletedToday) {
                     viewModel.deleteRoutine(routine.id)
@@ -48,7 +55,7 @@ fun RoutineListScreen(viewModel: RoutineViewModel) {
 @Composable
 fun RoutineItem(
     routine: com.example.routine.data.Routine,
- isCompleted: Boolean,
+    isCompleted: Boolean,
     onDeleteClick: () -> Unit
 ) {
     Row(

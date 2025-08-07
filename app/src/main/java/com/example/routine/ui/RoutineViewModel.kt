@@ -24,7 +24,7 @@ class RoutineViewModel(private val routineDao: RoutineDao) : ViewModel() {
         }
     }
 
-    fun getRoutineCompletionsForDate(completionDate: Long): Flow<List<RoutineCompletion>> {
-        return routineDao.getRoutineCompletionsForDate(completionDate)
+    fun getRoutineCompletionsForDate(startOfDayMillis: Long, endOfDayMillis: Long): Flow<List<RoutineCompletion>> {
+        return routineDao.getCompletionsForDate(startOfDayMillis, endOfDayMillis)
     }
 }
