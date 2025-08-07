@@ -7,5 +7,7 @@ import androidx.room.PrimaryKey
 data class Routine(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
-    val time: String // Assuming time is stored as a string like "HH:mm"
+    val content: String,
+    val hour: Int,
+    val minute: Int
 )
