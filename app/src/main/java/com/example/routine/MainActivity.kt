@@ -7,24 +7,26 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.routine.data.RoutineDatabase
 import com.example.routine.ui.AddRoutineScreen
 import com.example.routine.ui.RoutineListScreen
-import androidx.lifecycle.lifecycleScope
-import com.example.routine.data.RoutineDatabase
 import com.example.routine.ui.RoutineViewModel
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-class MainActivity : AppCompatActivity() {
 class MainActivity : ComponentActivity() {
+
     private lateinit var routineViewModel: RoutineViewModel
 
     private val requestPermissionLauncher =
@@ -32,31 +34,40 @@ class MainActivity : ComponentActivity() {
             if (isGranted) {
                 scheduleNotification()
             } else {
-                // 권한 거부 처리
+                // 권한 거부 처리 (필요시)
             }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
- val navController = rememberNavController()
-            val database = RoutineDatabase.getDatabase(applicationContext)
-            val routineDao = database.routineDao()
-            val routineViewModel: RoutineViewModel = viewModel(factory = RoutineViewModel.RoutineViewModelFactory(routineDao))
-
-            NavHost(navController = navController, startDestination = "routineList") {
-                composable("routineList") {
-                    RoutineListScreen(navController = navController, routineViewModel = routineViewModel)
-                }
-                composable("addRoutine") {
-                    AddRoutineScreen(navController = navController, routineViewModel = routineViewModel)
-                }
-            }
-        }
 
         val database = RoutineDatabase.getDatabase(applicationContext)
         val routineDao = database.routineDao()
         routineViewModel = RoutineViewModel(routineDao)
+
+        setContent {
+            val navController = rememberNavController()
+
+            // Optional: Compose Material3 Theme 적용
+            MaterialTheme {
+                Surface {
+                    NavHost(navController = navController, startDestination = "routineList") {
+                        composable("routineList") {
+                            RoutineListScreen(
+                                navController = navController,
+                                viewModel = routineViewModel
+                            )
+                        }
+                        composable("addRoutine") {
+                            AddRoutineScreen(
+                                navController = navController,
+                                viewModel = routineViewModel
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
         checkNotificationPermission()
     }
@@ -64,7 +75,8 @@ class MainActivity : ComponentActivity() {
     private fun checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.POST_NOTIFICATIONS
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)

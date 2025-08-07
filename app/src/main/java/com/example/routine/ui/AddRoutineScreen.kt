@@ -12,11 +12,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.routine.data.Routine
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddRoutineScreen(viewModel: RoutineViewModel) {
+fun AddRoutineScreen(
+    navController: NavController,      // ← navController 추가
+    viewModel: RoutineViewModel
+) {
     var routineContent by remember { mutableStateOf("") }
     var selectedHour by remember { mutableStateOf(0) }
     var selectedMinute by remember { mutableStateOf(0) }
@@ -58,6 +62,7 @@ fun AddRoutineScreen(viewModel: RoutineViewModel) {
                 routineContent = ""
                 selectedHour = 0
                 selectedMinute = 0
+                navController.popBackStack()  // 저장 후 리스트 화면으로 돌아감
             }
         }) {
             Text("Save Routine")
